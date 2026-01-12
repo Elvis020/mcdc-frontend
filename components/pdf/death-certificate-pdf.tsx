@@ -188,7 +188,7 @@ export function DeathCertificatePDF({ certificate }: DeathCertificatePDFProps) {
           <View style={styles.row}>
             <View style={styles.columnHalf}>
               <Text style={styles.label}>National ID</Text>
-              <Text style={styles.value}>{certificate.national_id || 'N/A'}</Text>
+              <Text style={styles.value}>{certificate.national_id_number || 'N/A'}</Text>
             </View>
             <View style={styles.columnHalf}>
               <Text style={styles.label}>National Register Number</Text>
@@ -340,7 +340,11 @@ export function DeathCertificatePDF({ certificate }: DeathCertificatePDFProps) {
               </View>
               <View style={styles.columnThird}>
                 <Text style={styles.label}>Multiple Pregnancy?</Text>
-                <Text style={styles.value}>{certificate.multiple_pregnancy?.toUpperCase() || 'N/A'}</Text>
+                <Text style={styles.value}>
+                  {certificate.multiple_pregnancy !== undefined
+                    ? (certificate.multiple_pregnancy ? 'YES' : 'NO')
+                    : 'N/A'}
+                </Text>
               </View>
               <View style={styles.columnThird}>
                 <Text style={styles.label}>Birth Weight (grams)</Text>
@@ -355,7 +359,7 @@ export function DeathCertificatePDF({ certificate }: DeathCertificatePDFProps) {
               </View>
               <View style={styles.columnThird}>
                 <Text style={styles.label}>Mother's Age</Text>
-                <Text style={styles.value}>{certificate.mother_age || 'N/A'}</Text>
+                <Text style={styles.value}>{certificate.mother_age_years || 'N/A'}</Text>
               </View>
             </View>
 

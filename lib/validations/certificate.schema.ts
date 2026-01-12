@@ -83,7 +83,7 @@ export const mannerLocationSchema = z.object({
 
 // Step 6: Fetal/Infant Death (conditional)
 export const fetalInfantSchema = z.object({
-  is_fetal_infant_death: z.boolean().default(false),
+  is_fetal_infant_death: z.boolean().optional(),
   stillbirth: yesNoUnknownEnum.optional(),
   multiple_pregnancy: z.boolean().optional(),
   hours_if_death_within_24h: z.number().int().min(0).max(24).optional(),
