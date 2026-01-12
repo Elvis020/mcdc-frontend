@@ -1,26 +1,111 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+  :root {
+    /* Base colors - Clean white background */
+    --background: 0 0% 100%;
+    --foreground: 160 5% 15%;
+
+    /* Card colors - Subtle green tint for depth */
+    --card: 0 0% 100%;
+    --card-foreground: 160 5% 15%;
+
+    /* Popover colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 5% 15%;
+
+    /* Primary - Professional medical green */
+    --primary: 152 65% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Light green for subtle highlights */
+    --secondary: 145 30% 92%;
+    --secondary-foreground: 152 65% 25%;
+
+    /* Muted - Very light green for backgrounds */
+    --muted: 145 25% 96%;
+    --muted-foreground: 160 5% 45%;
+
+    /* Accent - Medium green for interactive elements */
+    --accent: 152 50% 88%;
+    --accent-foreground: 152 65% 25%;
+
+    /* Destructive - Keep red for errors/warnings */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders and inputs - Soft green tint */
+    --border: 145 20% 88%;
+    --input: 145 20% 92%;
+    --ring: 152 65% 35%;
+
+    /* Success state - Bright green */
+    --success: 152 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning state - Amber */
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Info state - Teal */
+    --info: 180 60% 45%;
+    --info-foreground: 0 0% 100%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark mode with deep green tones */
+    --background: 160 15% 8%;
+    --foreground: 145 10% 95%;
+
+    --card: 160 12% 12%;
+    --card-foreground: 145 10% 95%;
+
+    --popover: 160 12% 12%;
+    --popover-foreground: 145 10% 95%;
+
+    --primary: 152 55% 50%;
+    --primary-foreground: 160 15% 8%;
+
+    --secondary: 160 10% 18%;
+    --secondary-foreground: 145 10% 95%;
+
+    --muted: 160 10% 15%;
+    --muted-foreground: 145 8% 65%;
+
+    --accent: 160 10% 20%;
+    --accent-foreground: 145 10% 95%;
+
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 145 10% 95%;
+
+    --border: 160 10% 20%;
+    --input: 160 10% 20%;
+    --ring: 152 55% 50%;
+
+    --success: 152 60% 50%;
+    --success-foreground: 160 15% 8%;
+
+    --warning: 45 93% 47%;
+    --warning-foreground: 160 15% 8%;
+
+    --info: 180 55% 50%;
+    --info-foreground: 160 15% 8%;
+  }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: hsl(var(--border));
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
