@@ -14,8 +14,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 160 5% 15%;
 
-    /* Primary - Professional medical green */
-    --primary: 152 65% 35%;
+    /* Primary - Tailwind emerald-600 (#059669) */
+    --primary: 160 84% 31%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Light green for subtle highlights */
@@ -37,7 +37,7 @@
     /* Borders and inputs - Soft green tint */
     --border: 145 20% 88%;
     --input: 145 20% 92%;
-    --ring: 152 65% 35%;
+    --ring: 160 84% 31%;
 
     /* Success state - Bright green */
     --success: 152 70% 45%;
@@ -96,8 +96,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-lato);
+  --font-display: var(--font-manrope);
 }
 
 @layer base {

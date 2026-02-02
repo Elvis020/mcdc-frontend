@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { NavLink } from '@/components/nav-link'
 import { FileText, FilePlus, CheckCircle2, Clock, FileCheck, ChevronRight, Edit3 } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -9,31 +10,33 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Get user details
-  const { data: userData } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user!.id)
-    .single()
+  // Fetch user data and counts in parallel for better performance
+  const [userData, draftCountResult, submittedCountResult] = await Promise.all([
+    supabase
+      .from('users')
+      .select('full_name, last_sign_in_at')
+      .eq('id', user!.id)
+      .single(),
+    supabase
+      .from('death_certificates')
+      .select('*', { count: 'exact', head: true })
+      .eq('created_by_id', user!.id)
+      .eq('status', 'draft'),
+    supabase
+      .from('death_certificates')
+      .select('*', { count: 'exact', head: true })
+      .eq('created_by_id', user!.id)
+      .eq('status', 'submitted')
+  ])
 
-  // Get certificate counts
-  const { count: draftCount } = await supabase
-    .from('death_certificates')
-    .select('*', { count: 'exact', head: true })
-    .eq('created_by_id', user!.id)
-    .eq('status', 'draft')
-
-  const { count: submittedCount } = await supabase
-    .from('death_certificates')
-    .select('*', { count: 'exact', head: true })
-    .eq('created_by_id', user!.id)
-    .eq('status', 'submitted')
+  const draftCount = draftCountResult.count
+  const submittedCount = submittedCountResult.count
 
   const totalCount = (draftCount || 0) + (submittedCount || 0)
 
   // Format last sign-in
-  const lastSignIn = userData?.last_sign_in_at
-    ? new Date(userData.last_sign_in_at).toLocaleString('en-US', {
+  const lastSignIn = userData?.data?.last_sign_in_at
+    ? new Date(userData.data.last_sign_in_at).toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
@@ -118,7 +121,7 @@ export default async function DashboardPage() {
         </h2>
         <div className="space-y-3">
           {/* Create New Certificate */}
-          <Link
+          <NavLink
             href="/dashboard/certificates/new"
             className="group flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-sm transition-all"
           >
@@ -132,10 +135,10 @@ export default async function DashboardPage() {
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
-          </Link>
+          </NavLink>
 
           {/* Continue Draft */}
-          <Link
+          <NavLink
             href="/dashboard/certificates?status=draft"
             className="group flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-amber-300 hover:shadow-sm transition-all"
           >
@@ -149,10 +152,10 @@ export default async function DashboardPage() {
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-600 transition-colors" />
-          </Link>
+          </NavLink>
 
           {/* View All Certificates */}
-          <Link
+          <NavLink
             href="/dashboard/certificates"
             className="group flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
           >
@@ -162,11 +165,11 @@ export default async function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-slate-900">View All Certificates</h3>
-                <p className="text-xs text-slate-500">Browse and search your history</p>
+                <p className="text-xs text-slate-slice">Browse and search your history</p>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" />
-          </Link>
+          </NavLink>
         </div>
       </div>
     </div>

@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import Link from 'next/link'
+import { NavLink } from '@/components/nav-link'
+import { Search, CheckCircle2, Edit3, ChevronRight, FilePlus, ArrowLeft } from 'lucide-react'
 
 export default async function CertificatesPage() {
   const supabase = await createClient()
@@ -11,90 +9,176 @@ export default async function CertificatesPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Get certificates for current user
+  // Get certificates for current user - only select needed fields
   const { data: certificates } = await supabase
     .from('death_certificates')
-    .select('*')
+    .select('id, deceased_full_name, serial_number, status, date_of_death, created_at, updated_at')
     .eq('created_by_id', user!.id)
     .order('created_at', { ascending: false })
+    .limit(50)
+
+  // Calculate days since last edit for drafts
+  const getCertificateStatus = (cert: any) => {
+    const daysSinceEdit = Math.floor((Date.now() - new Date(cert.updated_at).getTime()) / (1000 * 60 * 60 * 24))
+
+    if (cert.status === 'submitted') {
+      // Check if within editable window (assuming 5 days)
+      if (daysSinceEdit < 5) {
+        return `Editable for ${5 - daysSinceEdit} more days`
+      }
+      return 'Edit window closed'
+    }
+
+    if (cert.status === 'draft') {
+      if (daysSinceEdit === 0) return 'Last edited today'
+      if (daysSinceEdit === 1) return 'Last edited yesterday'
+      return `Last edited ${daysSinceEdit} days ago`
+    }
+
+    return null
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-2 text-sm">
+        <NavLink
+          href="/dashboard"
+          className="text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          Dashboard
+        </NavLink>
+        <span className="text-slate-300">/</span>
+        <span className="text-slate-900 font-medium">Certificates</span>
+      </nav>
+
+      {/* Header with New Certificate Button */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Death Certificates</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl font-semibold text-slate-900">Death Certificates</h1>
+          <p className="text-sm text-slate-500 mt-1">
             Manage your medical cause of death certificates
           </p>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/certificates/new">+ New Certificate</Link>
-        </Button>
+        <NavLink
+          href="/dashboard/certificates/new"
+          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors"
+        >
+          <FilePlus className="w-4 h-4" />
+          <span>New Certificate</span>
+        </NavLink>
       </div>
 
-      {/* Certificates List */}
-      {certificates && certificates.length > 0 ? (
-        <div className="grid gap-4">
-          {certificates.map((cert) => (
-            <Card key={cert.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{cert.deceased_full_name}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Serial: {cert.serial_number}
-                    </p>
-                  </div>
-                  <Badge variant={cert.status === 'draft' ? 'secondary' : 'default'}>
-                    {cert.status}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Date of Death</p>
-                    <p className="font-medium">
-                      {cert.date_of_death ? new Date(cert.date_of_death).toLocaleDateString() : 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Gender</p>
-                    <p className="font-medium capitalize">{cert.gender}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Created</p>
-                    <p className="font-medium">
-                      {new Date(cert.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/certificates/${cert.id}`}>View</Link>
-                    </Button>
-                    {cert.status === 'draft' && (
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/certificates/${cert.id}/edit`}>Edit</Link>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+      {/* Search and Filters Container */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        {/* Search Bar */}
+        <div className="p-4 border-b border-slate-200">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by name or certificate number..."
+              className="w-full pl-10 pr-4 py-2.5 text-sm border-none bg-slate-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
         </div>
-      ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground mb-4">
-              You haven't created any certificates yet
+
+        {/* Filter Tabs */}
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200">
+          <button className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg">
+            All
+          </button>
+          <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+            Submitted
+          </button>
+          <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+            Drafts
+          </button>
+          <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+            Editable
+          </button>
+        </div>
+
+        {/* Certificates List */}
+        {certificates && certificates.length > 0 ? (
+          <div className="divide-y divide-slate-200">
+            {certificates.map((cert) => (
+              <NavLink
+                key={cert.id}
+                href={`/dashboard/certificates/${cert.id}`}
+                className="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors group"
+              >
+                {/* Status Icon */}
+                <div className={`flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0 ${
+                  cert.status === 'draft'
+                    ? 'bg-amber-50'
+                    : 'bg-emerald-50'
+                }`}>
+                  {cert.status === 'draft' ? (
+                    <Edit3 className="w-5 h-5 text-amber-600" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  )}
+                </div>
+
+                {/* Certificate Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-sm font-semibold text-slate-900 truncate">
+                      {cert.deceased_full_name || 'Unnamed Certificate'}
+                    </h3>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
+                      cert.status === 'draft'
+                        ? 'bg-amber-50 text-amber-700'
+                        : 'bg-emerald-50 text-emerald-700'
+                    }`}>
+                      {cert.status === 'draft' ? 'Draft' : 'Submitted'}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-slate-600">
+                    {cert.serial_number || 'No serial number'} • {new Date(cert.date_of_death || cert.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+
+                  {getCertificateStatus(cert) && (
+                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                      {cert.status === 'submitted' && getCertificateStatus(cert)?.includes('Editable') && (
+                        <span className="text-amber-600">⏰</span>
+                      )}
+                      {cert.status === 'submitted' && getCertificateStatus(cert)?.includes('closed') && (
+                        <span className="text-slate-400">🔒</span>
+                      )}
+                      {getCertificateStatus(cert)}
+                    </p>
+                  )}
+                </div>
+
+                {/* Chevron */}
+                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 flex-shrink-0" />
+              </NavLink>
+            ))}
+          </div>
+        ) : (
+          // Empty State
+          <div className="p-12 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl">
+                <FilePlus className="w-8 h-8 text-slate-400" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              No certificates yet
+            </h3>
+            <p className="text-sm text-slate-500">
+              You haven't created any death certificates yet. Get started by creating your first one.
             </p>
-            <Button asChild>
-              <Link href="/dashboard/certificates/new">Create Your First Certificate</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
