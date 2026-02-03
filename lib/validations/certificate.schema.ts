@@ -3,6 +3,9 @@ import { z } from 'zod'
 // Enums matching database
 export const genderEnum = z.enum(['male', 'female'])
 export const yesNoUnknownEnum = z.enum(['yes', 'no', 'unknown'])
+// Helper to convert empty strings to undefined for optional enums
+const optionalEnum = (enumSchema: z.ZodEnum<any>) =>
+  z.union([enumSchema, z.literal('')]).transform(val => val === '' ? undefined : val).optional()
 export const mannerOfDeathEnum = z.enum([
   'disease',
   'assault',
@@ -65,11 +68,11 @@ export const medicalDataPart2Schema = z.object({
 
 // Step 4: Other Medical Data
 export const otherMedicalDataSchema = z.object({
-  surgery_within_4_weeks: yesNoUnknownEnum.optional(),
+  surgery_within_4_weeks: optionalEnum(yesNoUnknownEnum),
   surgery_date: z.string().optional(),
   surgery_reason: z.string().optional(),
-  autopsy_requested: yesNoUnknownEnum.optional(),
-  autopsy_findings_used: yesNoUnknownEnum.optional(),
+  autopsy_requested: optionalEnum(yesNoUnknownEnum),
+  autopsy_findings_used: optionalEnum(yesNoUnknownEnum),
 })
 
 // Step 5: Manner and Location of Death
@@ -78,13 +81,13 @@ export const mannerLocationSchema = z.object({
   external_cause_date: z.string().optional(),
   external_cause_description: z.string().optional(),
   poisoning_agent: z.string().optional(),
-  death_location: deathLocationEnum.optional(),
+  death_location: optionalEnum(deathLocationEnum),
 })
 
 // Step 6: Fetal/Infant Death (conditional)
 export const fetalInfantSchema = z.object({
   is_fetal_infant_death: z.boolean().optional(),
-  stillbirth: yesNoUnknownEnum.optional(),
+  stillbirth: optionalEnum(yesNoUnknownEnum),
   multiple_pregnancy: z.boolean().optional(),
   hours_if_death_within_24h: z.number().int().min(0).max(24).optional(),
   birth_weight_grams: z.number().int().min(0).optional(),
@@ -92,9 +95,9 @@ export const fetalInfantSchema = z.object({
   completed_weeks_pregnancy: z.number().int().min(0).max(45).optional(),
   mother_age_years: z.number().int().min(10).max(60).optional(),
   maternal_conditions: z.string().optional(),
-  was_deceased_pregnant: yesNoUnknownEnum.optional(),
-  pregnancy_timing: pregnancyTimingEnum.optional(),
-  pregnancy_contributed_to_death: yesNoUnknownEnum.optional(),
+  was_deceased_pregnant: optionalEnum(yesNoUnknownEnum),
+  pregnancy_timing: optionalEnum(pregnancyTimingEnum),
+  pregnancy_contributed_to_death: optionalEnum(yesNoUnknownEnum),
 })
 
 // Step 7: Issuer Details

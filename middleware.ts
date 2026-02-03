@@ -3,6 +3,15 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   try {
+    // Skip middleware for static files and API routes
+    if (
+      request.nextUrl.pathname.startsWith('/_next') ||
+      request.nextUrl.pathname.startsWith('/api') ||
+      request.nextUrl.pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|css|js)$/)
+    ) {
+      return NextResponse.next()
+    }
+
     // Check for required environment variables
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -39,9 +48,12 @@ export async function middleware(request: NextRequest) {
       }
     )
 
+    // Use getSession instead of getUser for faster auth check
     const {
-      data: { user },
-    } = await supabase.auth.getUser()
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    const user = session?.user
 
     // Protected routes - redirect to login if not authenticated
     if (
@@ -55,15 +67,32 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    // If user is authenticated and tries to access auth pages, redirect to dashboard
+    // If user is authenticated and tries to access auth pages
     if (
       user &&
       (request.nextUrl.pathname.startsWith('/login') ||
         request.nextUrl.pathname.startsWith('/register'))
     ) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
+      // Check if user has completed profile (exists in public.users)
+      const { data: userProfile } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      // If profile exists, redirect to dashboard
+      if (userProfile) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+
+      // If no profile yet, only allow access to create-password page
+      if (!request.nextUrl.pathname.startsWith('/register/create-password')) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/register/create-password'
+        return NextResponse.redirect(url)
+      }
     }
 
     return supabaseResponse

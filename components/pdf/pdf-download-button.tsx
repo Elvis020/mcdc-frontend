@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PDFDownloadLink } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { DeathCertificatePDF } from './death-certificate-pdf'
@@ -17,9 +17,9 @@ export function PDFDownloadButton({ certificate }: PDFDownloadButtonProps) {
 
   // PDFDownloadLink only works on client side
   // We need to wait for hydration to complete
-  useState(() => {
+  useEffect(() => {
     setIsClient(true)
-  })
+  }, [])
 
   if (!isClient) {
     return (
