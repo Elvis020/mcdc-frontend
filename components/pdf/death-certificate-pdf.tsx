@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer'
 import type { Database } from '@/types/database'
