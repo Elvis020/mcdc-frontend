@@ -1,9 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Force Edge Runtime
-export const runtime = 'edge'
-
 export async function middleware(request: NextRequest) {
   try {
     // Skip middleware for static files and API routes
