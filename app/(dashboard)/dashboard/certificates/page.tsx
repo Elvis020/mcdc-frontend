@@ -53,50 +53,53 @@ export default async function CertificatesPage() {
       </nav>
 
       {/* Header with New Certificate Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Death Certificates</h1>
-          <p className="text-sm text-slate-500 mt-1">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 truncate">Death Certificates</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Manage your medical cause of death certificates
           </p>
         </div>
         <NavLink
           href="/dashboard/certificates/new"
-          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors flex-shrink-0"
         >
           <FilePlus className="w-4 h-4" />
-          <span>New Certificate</span>
+          <span className="hidden sm:inline">New Certificate</span>
+          <span className="sm:hidden">New</span>
         </NavLink>
       </div>
 
       {/* Search and Filters Container */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {/* Search Bar */}
-        <div className="p-4 border-b border-slate-200">
+        <div className="p-3 sm:p-4 border-b border-slate-200">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by name or certificate number..."
-              className="w-full pl-10 pr-4 py-2.5 text-sm border-none bg-slate-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Search certificates..."
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-2.5 text-sm border-none bg-slate-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
             />
           </div>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200">
-          <button className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg">
-            All
-          </button>
-          <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
-            Submitted
-          </button>
-          <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
-            Drafts
-          </button>
-          <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
-            Editable
-          </button>
+        <div className="overflow-x-auto scrollbar-hide border-b border-slate-200">
+          <div className="flex items-center gap-2 px-4 py-3 min-w-max">
+            <button className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg whitespace-nowrap">
+              All
+            </button>
+            <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors whitespace-nowrap">
+              Submitted
+            </button>
+            <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors whitespace-nowrap">
+              Drafts
+            </button>
+            <button className="px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors whitespace-nowrap">
+              Editable
+            </button>
+          </div>
         </div>
 
         {/* Certificates List */}
@@ -106,25 +109,25 @@ export default async function CertificatesPage() {
               <NavLink
                 key={cert.id}
                 href={`/dashboard/certificates/${cert.id}`}
-                className="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors group"
+                className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-slate-50 transition-colors group"
               >
                 {/* Status Icon */}
-                <div className={`flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0 ${
+                <div className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex-shrink-0 ${
                   cert.status === 'draft'
                     ? 'bg-amber-50'
                     : 'bg-emerald-50'
                 }`}>
                   {cert.status === 'draft' ? (
-                    <Edit3 className="w-5 h-5 text-amber-600" />
+                    <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                   ) : (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                   )}
                 </div>
 
                 {/* Certificate Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-semibold text-slate-900 truncate">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className="text-sm font-semibold text-slate-900 truncate min-w-0">
                       {cert.deceased_full_name || 'Unnamed Certificate'}
                     </h3>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
@@ -136,7 +139,7 @@ export default async function CertificatesPage() {
                     </span>
                   </div>
 
-                  <p className="text-sm text-slate-600">
+                  <p className="text-xs sm:text-sm text-slate-600 truncate">
                     {cert.serial_number || 'No serial number'} • {new Date(cert.date_of_death || cert.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -158,7 +161,7 @@ export default async function CertificatesPage() {
                 </div>
 
                 {/* Chevron */}
-                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-slate-600 flex-shrink-0" />
               </NavLink>
             ))}
           </div>

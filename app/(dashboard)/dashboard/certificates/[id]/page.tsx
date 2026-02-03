@@ -34,6 +34,18 @@ export default async function CertificateViewPage({ params }: CertificateViewPag
     notFound()
   }
 
+  // Fetch user data to check role and permissions
+  const { data: userData } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  // Check if user can download PDF
+  const canDownloadPDF =
+    certificate.created_by_id === user.id || // Creator
+    userData?.role === 'admin' // Admin
+
   // Check if certificate is editable
   const isEditable = () => {
     if (certificate.status === 'draft') return true
@@ -61,26 +73,32 @@ export default async function CertificateViewPage({ params }: CertificateViewPag
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">Death Certificate</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold">Death Certificate</h1>
             <Badge variant={certificate.status === 'draft' ? 'secondary' : 'default'}>
               {certificate.status}
             </Badge>
           </div>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-sm sm:text-base text-muted-foreground mt-2 truncate">
             Serial Number: {certificate.serial_number}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/certificates">← Back to List</Link>
+        <div className="flex flex-wrap gap-2 sm:flex-nowrap sm:flex-shrink-0">
+          <Button variant="outline" asChild className="flex-1 sm:flex-none">
+            <Link href="/dashboard/certificates">
+              <span className="sm:hidden">← Back</span>
+              <span className="hidden sm:inline">← Back to List</span>
+            </Link>
           </Button>
-          <PDFDownloadButton certificate={certificate} />
+          {canDownloadPDF && <PDFDownloadButton certificate={certificate} />}
           {canEdit && (
-            <Button asChild>
-              <Link href={`/dashboard/certificates/${certificate.id}/edit`}>Edit Certificate</Link>
+            <Button asChild className="flex-1 sm:flex-none">
+              <Link href={`/dashboard/certificates/${certificate.id}/edit`}>
+                <span className="sm:hidden">Edit</span>
+                <span className="hidden sm:inline">Edit Certificate</span>
+              </Link>
             </Button>
           )}
         </div>

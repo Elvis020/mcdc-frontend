@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 import { CertificateFormData } from '@/lib/validations/certificate.schema'
 
 interface CertificateFormContextType {
@@ -11,6 +11,8 @@ interface CertificateFormContextType {
   totalSteps: number
   certificateId?: string
   isEditMode: boolean
+  resetForm: () => void
+  isDirty: boolean
 }
 
 const CertificateFormContext = createContext<CertificateFormContextType | undefined>(undefined)
@@ -26,20 +28,29 @@ export function CertificateFormProvider({
   initialData,
   certificateId
 }: CertificateFormProviderProps) {
+  const defaultFormData: Partial<CertificateFormData> = {
+    gender: 'male' as const,
+    manner_of_death: 'disease' as const,
+    is_fetal_infant_death: false,
+  }
+
   const [formData, setFormData] = useState<Partial<CertificateFormData>>(
-    initialData || {
-      // Default values for new certificates
-      gender: 'male',
-      manner_of_death: 'disease',
-      is_fetal_infant_death: false,
-    }
+    initialData || defaultFormData
   )
   const [currentStep, setCurrentStep] = useState(1)
-  const totalSteps = 7
+  const [isDirty, setIsDirty] = useState(false)
+  const totalSteps = 8
 
   const updateFormData = (data: Partial<CertificateFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
+    setIsDirty(true)
   }
+
+  const resetForm = useCallback(() => {
+    setFormData(defaultFormData)
+    setCurrentStep(1)
+    setIsDirty(false)
+  }, [])
 
   return (
     <CertificateFormContext.Provider
@@ -51,6 +62,8 @@ export function CertificateFormProvider({
         totalSteps,
         certificateId,
         isEditMode: !!certificateId,
+        resetForm,
+        isDirty,
       }}
     >
       {children}

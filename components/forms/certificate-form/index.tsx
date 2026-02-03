@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { CertificateFormProvider, useCertificateForm } from './form-context'
 import { CertificateFormData } from '@/lib/validations/certificate.schema'
 import { FormProgress } from './form-progress'
@@ -10,14 +11,51 @@ import { Step4OtherMedical } from './step-4-other-medical'
 import { Step5MannerLocation } from './step-5-manner-location'
 import { Step6FetalInfant } from './step-6-fetal-infant'
 import { Step7Issuer } from './step-7-issuer'
+import { Step8ReviewSubmit } from './step-8-review-submit'
+import { UnsavedChangesDialog } from './unsaved-changes-dialog'
+import { useNavigationGuard } from './use-navigation-guard'
 
 function FormContent() {
-  const { currentStep } = useCertificateForm()
+  const { currentStep, isDirty, setCurrentStep, resetForm } = useCertificateForm()
+  const [showDialog, setShowDialog] = useState(false)
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
+
+  const { allowNavigation, router } = useNavigationGuard({
+    shouldBlock: isDirty,
+    onNavigationAttempt: (targetUrl) => {
+      setPendingNavigation(targetUrl)
+      setShowDialog(true)
+    },
+  })
+
+  useEffect(() => {
+    if (isDirty) {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+      window.addEventListener('beforeunload', handleBeforeUnload)
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [isDirty])
+
+  const handleDiscard = () => {
+    setShowDialog(false)
+    resetForm()
+    if (pendingNavigation) {
+      allowNavigation()
+      router.push(pendingNavigation)
+      setPendingNavigation(null)
+    }
+  }
+
+  const handleCancel = () => {
+    setShowDialog(false)
+    setPendingNavigation(null)
+  }
 
   return (
-    <div className="space-y-6">
-      <FormProgress />
-
+    <>
       {currentStep === 1 && <Step1Administrative />}
       {currentStep === 2 && <Step2MedicalPart1 />}
       {currentStep === 3 && <Step3MedicalPart2 />}
@@ -25,7 +63,14 @@ function FormContent() {
       {currentStep === 5 && <Step5MannerLocation />}
       {currentStep === 6 && <Step6FetalInfant />}
       {currentStep === 7 && <Step7Issuer />}
-    </div>
+      {currentStep === 8 && <Step8ReviewSubmit />}
+
+      <UnsavedChangesDialog
+        isOpen={showDialog}
+        onDiscard={handleDiscard}
+        onCancel={handleCancel}
+      />
+    </>
   )
 }
 
