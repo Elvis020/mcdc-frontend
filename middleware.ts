@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Force Edge Runtime
+export const runtime = 'edge'
+
 export async function middleware(request: NextRequest) {
   try {
     // Skip middleware for static files and API routes
@@ -21,7 +24,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next({ request })
     }
 
-    let supabaseResponse = NextResponse.next({
+    const response = NextResponse.next({
       request,
     })
 
@@ -34,14 +37,8 @@ export async function middleware(request: NextRequest) {
             return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) =>
-              request.cookies.set(name, value)
-            )
-            supabaseResponse = NextResponse.next({
-              request,
-            })
             cookiesToSet.forEach(({ name, value, options }) =>
-              supabaseResponse.cookies.set(name, value, options)
+              response.cookies.set(name, value, options)
             )
           },
         },
@@ -95,7 +92,7 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    return supabaseResponse
+    return response
   } catch (error) {
     console.error('Middleware error:', error)
     // On error, allow the request to proceed
