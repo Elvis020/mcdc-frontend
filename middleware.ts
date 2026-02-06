@@ -1,9 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   try {
-    // Skip proxy for static files and API routes
+    // Skip middleware for static files and API routes
     if (
       request.nextUrl.pathname.startsWith('/_next') ||
       request.nextUrl.pathname.startsWith('/api') ||
@@ -91,7 +91,7 @@ export async function proxy(request: NextRequest) {
 
     return response
   } catch (error) {
-    console.error('Proxy error:', error)
+    console.error('Middleware error:', error)
     // On error, allow the request to proceed
     return NextResponse.next({ request })
   }
