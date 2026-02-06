@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { PDFDownloadButton } from '@/components/pdf/pdf-download-button'
+
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 
@@ -40,11 +40,6 @@ export default async function CertificateViewPage({ params }: CertificateViewPag
     .select('role')
     .eq('id', user.id)
     .single()
-
-  // Check if user can download PDF
-  const canDownloadPDF =
-    certificate.created_by_id === user.id || // Creator
-    userData?.role === 'admin' // Admin
 
   // Check if certificate is editable
   const isEditable = () => {
@@ -92,7 +87,7 @@ export default async function CertificateViewPage({ params }: CertificateViewPag
               <span className="hidden sm:inline">← Back to List</span>
             </Link>
           </Button>
-          {canDownloadPDF && <PDFDownloadButton certificate={certificate} />}
+
           {canEdit && (
             <Button asChild className="flex-1 sm:flex-none">
               <Link href={`/dashboard/certificates/${certificate.id}/edit`}>
