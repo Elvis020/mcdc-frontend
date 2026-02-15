@@ -119,7 +119,7 @@ export const otherMedicalDataSchema = z.object({
 
 // Step 5: Manner and Location of Death
 export const mannerLocationSchema = z.object({
-  manner_of_death: z.union([mannerOfDeathEnum, z.literal('')]).refine(val => val !== '', { message: 'Please select manner of death' }),
+  manner_of_death: mannerOfDeathEnum,
   external_cause_date: z.string().optional(),
   external_cause_description: z.string().optional(),
   poisoning_agent: z.string().optional(),

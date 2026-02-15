@@ -24,7 +24,7 @@ export function Step5MannerLocation() {
   } = useForm<MannerLocation>({
     resolver: zodResolver(mannerLocationSchema),
     defaultValues: {
-      manner_of_death: formData.manner_of_death || '',
+      manner_of_death: formData.manner_of_death,
       external_cause_date: formData.external_cause_date || '',
       external_cause_description: formData.external_cause_description || '',
       poisoning_agent: formData.poisoning_agent || '',
