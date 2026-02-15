@@ -12,11 +12,14 @@ export function Step1Administrative() {
   const { formData, updateFormData, setCurrentStep } = useCertificateForm()
   const { saveDraft, saving } = useSaveDraft()
 
+  // Today's date as YYYY-MM-DD for the max attribute
+  const today = new Date().toISOString().split('T')[0]
+
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, touchedFields },
+    formState: { errors },
   } = useForm<AdministrativeData>({
     resolver: zodResolver(administrativeDataSchema),
     defaultValues: {
@@ -104,10 +107,10 @@ export function Step1Administrative() {
             placeholder="Enter full name of deceased"
             className={cn(
               "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:border-slate-400",
-              errors.deceased_full_name && touchedFields.deceased_full_name ? "border-red-300 bg-red-50" : "border-slate-200"
+              errors.deceased_full_name ? "border-red-300 bg-red-50" : "border-slate-200"
             )}
           />
-          {errors.deceased_full_name && touchedFields.deceased_full_name && (
+          {errors.deceased_full_name && (
             <p className="text-xs text-red-600">{errors.deceased_full_name.message}</p>
           )}
         </div>
@@ -121,13 +124,14 @@ export function Step1Administrative() {
             <input
               id="date_of_birth"
               type="date"
+              max={today}
               {...register('date_of_birth')}
               className={cn(
                 "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:border-slate-400",
-                errors.date_of_birth && touchedFields.date_of_birth ? "border-red-300 bg-red-50" : "border-slate-200"
+                errors.date_of_birth ? "border-red-300 bg-red-50" : "border-slate-200"
               )}
             />
-            {errors.date_of_birth && touchedFields.date_of_birth && (
+            {errors.date_of_birth && (
               <p className="text-xs text-red-600">{errors.date_of_birth.message}</p>
             )}
           </div>
@@ -139,13 +143,14 @@ export function Step1Administrative() {
             <input
               id="date_of_death"
               type="date"
+              max={today}
               {...register('date_of_death')}
               className={cn(
                 "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:border-slate-400",
-                errors.date_of_death && touchedFields.date_of_death ? "border-red-300 bg-red-50" : "border-slate-200"
+                errors.date_of_death ? "border-red-300 bg-red-50" : "border-slate-200"
               )}
             />
-            {errors.date_of_death && touchedFields.date_of_death && (
+            {errors.date_of_death && (
               <p className="text-xs text-red-600">{errors.date_of_death.message}</p>
             )}
           </div>

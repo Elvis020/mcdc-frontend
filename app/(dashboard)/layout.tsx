@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { NavLink } from "@/components/nav-link";
+import Image from "next/image";
 import {
-  FileText,
   LayoutDashboard,
   Settings,
   LogOut,
@@ -58,9 +58,13 @@ export default async function DashboardLayout({
               href="/dashboard"
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <div className="flex items-center justify-center w-8 h-8 bg-emerald-600 rounded-sm">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
+              <Image
+                src="/MoH.png"
+                alt="Ghana Ministry of Health"
+                width={36}
+                height={36}
+                className="object-contain"
+              />
               <span className="text-xl font-semibold text-slate-900">
                 eMCOD
               </span>

@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import Image from "next/image";
 import {
-  FileText,
   Mail,
   Lock,
   Eye,
@@ -300,9 +300,14 @@ export default function LoginPage() {
           <div className="p-8 sm:p-10 space-y-6">
             {/* Logo */}
             <div className="flex justify-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-600 shadow-lg shadow-emerald-600/30 transition-transform hover:scale-105">
-                <FileText className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-              </div>
+              <Image
+                src="/MoH.png"
+                alt="Ghana Ministry of Health"
+                width={100}
+                height={100}
+                className="object-contain"
+                priority
+              />
             </div>
 
             {/* Title */}

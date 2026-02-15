@@ -24,11 +24,12 @@ export function Step5MannerLocation() {
   } = useForm<MannerLocation>({
     resolver: zodResolver(mannerLocationSchema),
     defaultValues: {
-      manner_of_death: formData.manner_of_death || 'disease',
+      manner_of_death: formData.manner_of_death || '',
       external_cause_date: formData.external_cause_date || '',
       external_cause_description: formData.external_cause_description || '',
       poisoning_agent: formData.poisoning_agent || '',
       death_location: formData.death_location || undefined,
+      death_location_other: formData.death_location_other || '',
     },
   })
 
@@ -61,6 +62,7 @@ export function Step5MannerLocation() {
               Manner of Death <span className="text-red-500">*</span>
             </Label>
             <Select id="manner_of_death" {...register('manner_of_death')}>
+              <option value="" disabled>Select manner of death...</option>
               <option value="disease">Disease</option>
               <option value="assault">Assault</option>
               <option value="could_not_be_determined">Could Not Be Determined</option>
@@ -119,14 +121,27 @@ export function Step5MannerLocation() {
               <option value="">Select location...</option>
               <option value="home">Home</option>
               <option value="residential_institution">Residential Institution</option>
-              <option value="school_other_institution_public">School/Other Institution/Public</option>
+              <option value="school_other_institution_public">School/Other Institution/Public Administrative Area</option>
               <option value="sports_athletics">Sports and Athletics</option>
               <option value="street_highway">Street and Highway</option>
               <option value="trade_service_area">Trade and Service Area</option>
               <option value="industrial_construction_area">Industrial and Construction Area</option>
               <option value="farm">Farm</option>
+              <option value="unknown">Unknown</option>
+              <option value="other">Other</option>
             </Select>
           </div>
+
+          {watch('death_location') === 'other' && (
+            <div className="space-y-2">
+              <Label htmlFor="death_location_other">Please specify location</Label>
+              <Input
+                id="death_location_other"
+                {...register('death_location_other')}
+                placeholder="Specify the location of death..."
+              />
+            </div>
+          )}
         </div>
 
         {/* Navigation */}

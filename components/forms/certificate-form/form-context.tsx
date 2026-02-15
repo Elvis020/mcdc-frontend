@@ -30,7 +30,7 @@ export function CertificateFormProvider({
 }: CertificateFormProviderProps) {
   const defaultFormData: Partial<CertificateFormData> = {
     gender: 'male' as const,
-    manner_of_death: 'disease' as const,
+    manner_of_death: '' as any,
     is_fetal_infant_death: false,
   }
 

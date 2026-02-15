@@ -26,6 +26,8 @@ export const deathLocationEnum = z.enum([
   'trade_service_area',
   'industrial_construction_area',
   'farm',
+  'unknown',
+  'other',
 ])
 export const pregnancyTimingEnum = z.enum([
   'at_time_of_death',
@@ -34,8 +36,8 @@ export const pregnancyTimingEnum = z.enum([
   'unknown',
 ])
 
-// Step 1: Administrative Data
-export const administrativeDataSchema = z.object({
+// Step 1: Administrative Data - base shape (used for combined schema)
+const administrativeDataFields = z.object({
   folder_number: z.string().optional(),
   cod_certificate_number: z.string().optional(),
   facility_code: z.string().optional(),
@@ -49,21 +51,61 @@ export const administrativeDataSchema = z.object({
   date_of_death: z.string().min(1, 'Date of death is required'),
 })
 
+// Step 1: Administrative Data - with date validation refinements (used for form)
+export const administrativeDataSchema = administrativeDataFields.refine(
+  (data) => {
+    if (!data.date_of_birth) return true
+    return new Date(data.date_of_birth) <= new Date()
+  },
+  { message: 'Date of birth cannot be in the future', path: ['date_of_birth'] }
+).refine(
+  (data) => {
+    if (!data.date_of_death) return true
+    return new Date(data.date_of_death) <= new Date()
+  },
+  { message: 'Date of death cannot be in the future', path: ['date_of_death'] }
+).refine(
+  (data) => {
+    if (!data.date_of_birth || !data.date_of_death) return true
+    return new Date(data.date_of_birth) <= new Date(data.date_of_death)
+  },
+  { message: 'Date of birth cannot be after date of death', path: ['date_of_birth'] }
+)
+
 // Step 2: Medical Data Part 1 (Cause Chain)
 export const medicalDataPart1Schema = z.object({
   cause_a_description: z.string().min(1, 'Direct cause of death is required'),
+  cause_a_icd_code: z.string().min(1, 'Please select an ICD-11 code'),
   cause_a_interval: z.string().optional(),
+  cause_a_comment: z.string().optional(),
   cause_b_description: z.string().optional(),
+  cause_b_icd_code: z.string().optional(),
   cause_b_interval: z.string().optional(),
+  cause_b_comment: z.string().optional(),
   cause_c_description: z.string().optional(),
+  cause_c_icd_code: z.string().optional(),
   cause_c_interval: z.string().optional(),
+  cause_c_comment: z.string().optional(),
   cause_d_description: z.string().optional(),
+  cause_d_icd_code: z.string().optional(),
   cause_d_interval: z.string().optional(),
+  cause_d_comment: z.string().optional(),
 })
 
 // Step 3: Medical Data Part 2
 export const medicalDataPart2Schema = z.object({
   contributing_conditions: z.string().optional(),
+  contributing_conditions_icd_code: z.string().optional(),
+  contributing_conditions_comment: z.string().optional(),
+  contributing_conditions_2: z.string().optional(),
+  contributing_conditions_2_icd_code: z.string().optional(),
+  contributing_conditions_2_comment: z.string().optional(),
+  contributing_conditions_3: z.string().optional(),
+  contributing_conditions_3_icd_code: z.string().optional(),
+  contributing_conditions_3_comment: z.string().optional(),
+  contributing_conditions_4: z.string().optional(),
+  contributing_conditions_4_icd_code: z.string().optional(),
+  contributing_conditions_4_comment: z.string().optional(),
 })
 
 // Step 4: Other Medical Data
@@ -77,11 +119,12 @@ export const otherMedicalDataSchema = z.object({
 
 // Step 5: Manner and Location of Death
 export const mannerLocationSchema = z.object({
-  manner_of_death: mannerOfDeathEnum,
+  manner_of_death: z.union([mannerOfDeathEnum, z.literal('')]).refine(val => val !== '', { message: 'Please select manner of death' }),
   external_cause_date: z.string().optional(),
   external_cause_description: z.string().optional(),
   poisoning_agent: z.string().optional(),
   death_location: optionalEnum(deathLocationEnum),
+  death_location_other: z.string().optional(),
 })
 
 // Step 6: Fetal/Infant Death (conditional)
@@ -112,7 +155,7 @@ export const issuerDetailsSchema = z.object({
 
 // Complete certificate schema (all steps combined)
 export const certificateSchema = z.object({
-  ...administrativeDataSchema.shape,
+  ...administrativeDataFields.shape,
   ...medicalDataPart1Schema.shape,
   ...medicalDataPart2Schema.shape,
   ...otherMedicalDataSchema.shape,
