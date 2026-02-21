@@ -19,8 +19,7 @@ interface CertificateLayoutProps {
  */
 export function CertificateLayout({ data }: CertificateLayoutProps) {
   return (
-    <div className="overflow-x-auto">
-      <div className="mx-auto w-[210mm] min-w-[500px] bg-white shadow-lg font-serif text-[11px] border border-gray-400 print:shadow-none print:border-0">
+    <div className="w-[210mm] bg-white shadow-lg font-serif text-[11px] border border-gray-400 print:shadow-none print:border-0">
 
         {/* ── Header ────────────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between px-3 py-2 border-b border-gray-400">
@@ -79,7 +78,6 @@ export function CertificateLayout({ data }: CertificateLayoutProps) {
             MEDICAL FORM L SECTION 30
           </span>
         </div>
-      </div>
     </div>
   )
 }

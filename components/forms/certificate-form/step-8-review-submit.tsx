@@ -7,7 +7,7 @@ import { FormProgress, StepIndicators } from './form-progress'
 import { saveCertificate } from '@/lib/certificate-actions'
 import { certificateSchema } from '@/lib/validations/certificate.schema'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CertificateLayout } from '@/components/certificate-layout/certificate-layout'
+import { CertificateScaler } from '@/components/certificate-layout/certificate-scaler'
 import { toast } from 'sonner'
 
 export function Step8ReviewSubmit() {
@@ -87,7 +87,7 @@ export function Step8ReviewSubmit() {
           </Alert>
         )}
 
-        <CertificateLayout data={formData} />
+        <CertificateScaler data={formData} />
       </div>
 
       {/* Navigation */}

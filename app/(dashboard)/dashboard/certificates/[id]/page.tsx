@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CertificateLayout } from '@/components/certificate-layout/certificate-layout'
+import { CertificateScaler } from '@/components/certificate-layout/certificate-scaler'
 
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
@@ -116,7 +116,7 @@ export default async function CertificateViewPage({ params }: CertificateViewPag
       )}
 
       {/* Certificate — physical form layout */}
-      <CertificateLayout data={certificate} />
+      <CertificateScaler data={certificate} />
     </div>
   )
 }
