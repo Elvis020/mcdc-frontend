@@ -119,3 +119,24 @@
     display: none;
   }
 }
+
+@media print {
+  /* Hide nav, buttons, and page chrome — show only the certificate */
+  nav,
+  header,
+  [data-print-hidden],
+  .print\:hidden {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Remove overflow so the full certificate renders on paper */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+}
