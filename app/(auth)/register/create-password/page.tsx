@@ -92,28 +92,43 @@ export default function CreatePasswordPage() {
   useEffect(() => {
     if (!userCreatedAt || timeRemaining <= 0) return
 
-    const timer = setInterval(() => {
+    let isMounted = true
+
+    const timer = setInterval(async () => {
+      if (!isMounted) return
+
       const now = new Date()
       const elapsed = (now.getTime() - userCreatedAt.getTime()) / 1000
       const remaining = Math.max(0, 120 - elapsed)
 
       setTimeRemaining(remaining)
 
-      // When time runs out
       if (remaining <= 0) {
         clearInterval(timer)
-        handleTimeout()
+        if (isMounted) handleTimeout()
       }
-    }, 100) // Update every 100ms for smooth animation
+    }, 100)
 
-    return () => clearInterval(timer)
-  }, [userCreatedAt])
+    return () => {
+      isMounted = false
+      clearInterval(timer)
+    }
+  }, [userCreatedAt]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTimeout = async () => {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      router.push('/login?expired=true')
+      return
+    }
+
+    // Check if THIS user's profile was created (critical: filter by user.id)
     const { data: profile } = await supabase
       .from('users')
       .select('id')
+      .eq('id', user.id)
       .single()
 
     // If no profile created, sign out and redirect

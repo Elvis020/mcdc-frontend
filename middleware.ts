@@ -42,12 +42,10 @@ export async function middleware(request: NextRequest) {
       }
     )
 
-    // Use getSession instead of getUser for faster auth check
+    // Use getUser for server-verified auth (not spoofable like getSession)
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    const user = session?.user
+      data: { user },
+    } = await supabase.auth.getUser()
 
     // Protected routes - redirect to login if not authenticated
     if (

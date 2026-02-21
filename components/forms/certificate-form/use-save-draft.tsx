@@ -1,80 +1,44 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { useCertificateForm } from './form-context'
+import { saveCertificate } from '@/lib/certificate-actions'
+import { CertificateFormData } from '@/lib/validations/certificate.schema'
+import { toast } from 'sonner'
 
 export function useSaveDraft() {
   const router = useRouter()
   const { formData, certificateId, isEditMode } = useCertificateForm()
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // Ref-based guard: React state updates are async, so `saving` being true
+  // in state doesn't prevent a second call from starting before the first
+  // setSaving(true) is committed. A ref is synchronous and prevents the race.
+  const savingRef = useRef(false)
 
-  const saveDraft = async () => {
+  const saveDraft = useCallback(async (currentStepData?: Partial<CertificateFormData>) => {
+    if (savingRef.current) return  // synchronous guard — no double-saves
+    savingRef.current = true
     setSaving(true)
-    setError(null)
 
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+    const mergedData = { ...formData, ...(currentStepData ?? {}) }
 
-      if (!user) throw new Error('Not authenticated')
+    const result = await saveCertificate(mergedData, {
+      status: 'draft',
+      isEditMode,
+      certificateId,
+    })
 
-      // Transform empty strings to null for date fields and database compatibility
-      const cleanFormData = Object.fromEntries(
-        Object.entries(formData).map(([key, value]) => [
-          key,
-          value === '' ? null : value
-        ])
-      )
-
-      if (isEditMode && certificateId) {
-        // Update existing certificate
-        const { error: updateError } = await supabase
-          .from('death_certificates')
-          .update({
-            ...cleanFormData,
-            status: 'draft',
-          })
-          .eq('id', certificateId)
-
-        if (updateError) throw updateError
-      } else {
-        // Create new certificate
-        // Get user's region data
-        const { data: userData } = await supabase
-          .from('users')
-          .select('region_id, district_id, facility_id')
-          .eq('id', user.id)
-          .single()
-
-        // Generate serial number (simplified - in production use DB function)
-        const serial = `DRAFT-${Date.now()}`
-
-        const { error: insertError } = await supabase
-          .from('death_certificates')
-          .insert({
-            serial_number: serial,
-            status: 'draft',
-            created_by_id: user.id,
-            region_id: userData?.region_id,
-            district_id: userData?.district_id,
-            facility_id: userData?.facility_id,
-            ...cleanFormData,
-          })
-
-        if (insertError) throw insertError
-      }
-
-      // Navigate back to certificates page
+    if (result.success) {
+      toast.success('Draft saved successfully')
       router.push('/dashboard/certificates')
-    } catch (err: any) {
-      setError(err.message || 'Failed to save draft')
-    } finally {
+      // Don't reset saving — navigation is in progress; component will unmount
+    } else {
+      toast.error(result.error ?? 'Failed to save draft')
       setSaving(false)
+      savingRef.current = false
     }
-  }
+  }, [formData, certificateId, isEditMode, router])
 
-  return { saveDraft, saving, error }
+  return { saveDraft, saving }
 }

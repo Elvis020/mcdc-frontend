@@ -44,6 +44,8 @@ export type DeathLocation =
   | 'trade_service_area'
   | 'industrial_construction_area'
   | 'farm'
+  | 'unknown'
+  | 'other'
 
 export type PregnancyTiming =
   | 'at_time_of_death'
@@ -98,6 +100,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       mdc_registry: {
         Row: {
@@ -139,6 +142,7 @@ export interface Database {
           imported_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       death_certificates: {
         Row: {
@@ -157,14 +161,33 @@ export interface Database {
           national_id_number: string | null
           date_of_death: string
           cause_a_description: string
+          cause_a_icd_code: string | null
           cause_a_interval: string | null
+          cause_a_comment: string | null
           cause_b_description: string | null
+          cause_b_icd_code: string | null
           cause_b_interval: string | null
+          cause_b_comment: string | null
           cause_c_description: string | null
+          cause_c_icd_code: string | null
           cause_c_interval: string | null
+          cause_c_comment: string | null
           cause_d_description: string | null
+          cause_d_icd_code: string | null
           cause_d_interval: string | null
+          cause_d_comment: string | null
           contributing_conditions: string | null
+          contributing_conditions_icd_code: string | null
+          contributing_conditions_comment: string | null
+          contributing_conditions_2: string | null
+          contributing_conditions_2_icd_code: string | null
+          contributing_conditions_2_comment: string | null
+          contributing_conditions_3: string | null
+          contributing_conditions_3_icd_code: string | null
+          contributing_conditions_3_comment: string | null
+          contributing_conditions_4: string | null
+          contributing_conditions_4_icd_code: string | null
+          contributing_conditions_4_comment: string | null
           surgery_within_4_weeks: YesNoUnknown | null
           surgery_date: string | null
           surgery_reason: string | null
@@ -175,6 +198,7 @@ export interface Database {
           external_cause_description: string | null
           poisoning_agent: string | null
           death_location: DeathLocation | null
+          death_location_other: string | null
           is_fetal_infant_death: boolean
           stillbirth: YesNoUnknown | null
           multiple_pregnancy: boolean | null
@@ -219,14 +243,33 @@ export interface Database {
           national_id_number?: string | null
           date_of_death: string
           cause_a_description: string
+          cause_a_icd_code?: string | null
           cause_a_interval?: string | null
+          cause_a_comment?: string | null
           cause_b_description?: string | null
+          cause_b_icd_code?: string | null
           cause_b_interval?: string | null
+          cause_b_comment?: string | null
           cause_c_description?: string | null
+          cause_c_icd_code?: string | null
           cause_c_interval?: string | null
+          cause_c_comment?: string | null
           cause_d_description?: string | null
+          cause_d_icd_code?: string | null
           cause_d_interval?: string | null
+          cause_d_comment?: string | null
           contributing_conditions?: string | null
+          contributing_conditions_icd_code?: string | null
+          contributing_conditions_comment?: string | null
+          contributing_conditions_2?: string | null
+          contributing_conditions_2_icd_code?: string | null
+          contributing_conditions_2_comment?: string | null
+          contributing_conditions_3?: string | null
+          contributing_conditions_3_icd_code?: string | null
+          contributing_conditions_3_comment?: string | null
+          contributing_conditions_4?: string | null
+          contributing_conditions_4_icd_code?: string | null
+          contributing_conditions_4_comment?: string | null
           surgery_within_4_weeks?: YesNoUnknown | null
           surgery_date?: string | null
           surgery_reason?: string | null
@@ -237,6 +280,7 @@ export interface Database {
           external_cause_description?: string | null
           poisoning_agent?: string | null
           death_location?: DeathLocation | null
+          death_location_other?: string | null
           is_fetal_infant_death?: boolean
           stillbirth?: YesNoUnknown | null
           multiple_pregnancy?: boolean | null
@@ -269,8 +313,79 @@ export interface Database {
           id?: string
           serial_number?: string
           status?: CertificateStatus
-          [key: string]: any
+          folder_number?: string | null
+          cod_certificate_number?: string | null
+          facility_code?: string | null
+          facility_sn?: string | null
+          facility_d?: string | null
+          deceased_full_name?: string
+          date_of_birth?: string
+          gender?: Gender
+          national_register_number?: string | null
+          national_id_number?: string | null
+          date_of_death?: string
+          cause_a_description?: string
+          cause_a_icd_code?: string | null
+          cause_a_interval?: string | null
+          cause_a_comment?: string | null
+          cause_b_description?: string | null
+          cause_b_icd_code?: string | null
+          cause_b_interval?: string | null
+          cause_b_comment?: string | null
+          cause_c_description?: string | null
+          cause_c_icd_code?: string | null
+          cause_c_interval?: string | null
+          cause_c_comment?: string | null
+          cause_d_description?: string | null
+          cause_d_icd_code?: string | null
+          cause_d_interval?: string | null
+          cause_d_comment?: string | null
+          contributing_conditions?: string | null
+          contributing_conditions_icd_code?: string | null
+          contributing_conditions_comment?: string | null
+          contributing_conditions_2?: string | null
+          contributing_conditions_2_icd_code?: string | null
+          contributing_conditions_2_comment?: string | null
+          contributing_conditions_3?: string | null
+          contributing_conditions_3_icd_code?: string | null
+          contributing_conditions_3_comment?: string | null
+          contributing_conditions_4?: string | null
+          contributing_conditions_4_icd_code?: string | null
+          contributing_conditions_4_comment?: string | null
+          surgery_within_4_weeks?: YesNoUnknown | null
+          surgery_date?: string | null
+          surgery_reason?: string | null
+          autopsy_requested?: YesNoUnknown | null
+          autopsy_findings_used?: YesNoUnknown | null
+          manner_of_death?: MannerOfDeath
+          external_cause_date?: string | null
+          external_cause_description?: string | null
+          poisoning_agent?: string | null
+          death_location?: DeathLocation | null
+          death_location_other?: string | null
+          is_fetal_infant_death?: boolean
+          stillbirth?: YesNoUnknown | null
+          multiple_pregnancy?: boolean | null
+          hours_if_death_within_24h?: number | null
+          birth_weight_grams?: number | null
+          was_serviced?: boolean | null
+          completed_weeks_pregnancy?: number | null
+          mother_age_years?: number | null
+          maternal_conditions?: string | null
+          was_deceased_pregnant?: YesNoUnknown | null
+          pregnancy_timing?: PregnancyTiming | null
+          pregnancy_contributed_to_death?: YesNoUnknown | null
+          issued_to_full_name?: string | null
+          issued_to_mobile?: string | null
+          issued_to_contact_details?: string | null
+          relation_to_deceased?: string | null
+          witness_to_deceased?: string | null
+          witness_date?: string | null
+          submitted_at?: string | null
+          edit_window_expires_at?: string | null
+          pdf_storage_path?: string | null
         }
+        Relationships: []
       }
       regions: {
         Row: {
@@ -279,6 +394,9 @@ export interface Database {
           name: string
           created_at: string
         }
+        Insert: Record<string, never>
+        Update: Record<string, never>
+        Relationships: []
       }
       districts: {
         Row: {
@@ -288,6 +406,9 @@ export interface Database {
           region_id: string
           created_at: string
         }
+        Insert: Record<string, never>
+        Update: Record<string, never>
+        Relationships: []
       }
       facilities: {
         Row: {
@@ -298,6 +419,9 @@ export interface Database {
           region_id: string
           created_at: string
         }
+        Insert: Record<string, never>
+        Update: Record<string, never>
+        Relationships: []
       }
       user_sign_ins: {
         Row: {
@@ -307,6 +431,15 @@ export interface Database {
           ip_address: string | null
           user_agent: string | null
         }
+        Insert: {
+          id?: string
+          user_id: string
+          signed_in_at?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: Record<string, never>
+        Relationships: []
       }
       certificate_audit_log: {
         Row: {
@@ -319,9 +452,21 @@ export interface Database {
           user_agent: string | null
           created_at: string
         }
+        Insert: {
+          id?: string
+          certificate_id: string
+          user_id: string
+          action: AuditAction
+          changes?: Json | null
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: Record<string, never>
+        Relationships: []
       }
     }
-    Views: {}
+    Views: Record<string, never>
     Functions: {
       generate_certificate_serial_number: {
         Args: {
@@ -331,15 +476,15 @@ export interface Database {
         Returns: string
       }
       get_user_role: {
-        Args: {}
+        Args: Record<string, never>
         Returns: UserRole
       }
       is_admin: {
-        Args: {}
+        Args: Record<string, never>
         Returns: boolean
       }
       is_doctor: {
-        Args: {}
+        Args: Record<string, never>
         Returns: boolean
       }
     }
@@ -353,5 +498,6 @@ export interface Database {
       pregnancy_timing: PregnancyTiming
       audit_action: AuditAction
     }
+    CompositeTypes: Record<string, never>
   }
 }

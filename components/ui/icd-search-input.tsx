@@ -31,6 +31,11 @@ export function IcdSearchInput({
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
+  // Ref so the stable click-outside listener can read the latest icdCode
+  // without being recreated on every ICD code selection (avoids removeEventListener
+  // + addEventListener churn on each keystroke / selection).
+  const icdCodeRef = useRef(icdCode)
+  useEffect(() => { icdCodeRef.current = icdCode }, [icdCode])
 
   // When a code is already selected, show its display value; otherwise show the search query
   const displayValue = icdCode ? value : query
@@ -42,19 +47,20 @@ export function IcdSearchInput({
     }
   }, [value, icdCode])
 
-  // Close dropdown on outside click — also revert query if nothing was selected
+  // Close dropdown on outside click — also revert query if nothing was selected.
+  // Empty deps array: listener is attached once and reads icdCode via ref.
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setOpen(false)
-        if (!icdCode) {
+        if (!icdCodeRef.current) {
           setQuery('')
         }
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [icdCode])
+  }, [])
 
   // Scroll highlighted item into view
   useEffect(() => {

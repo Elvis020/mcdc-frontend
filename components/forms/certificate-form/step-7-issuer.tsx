@@ -7,11 +7,12 @@ import { useRouter } from 'next/navigation'
 import { issuerDetailsSchema, type IssuerDetails } from '@/lib/validations/certificate.schema'
 import { useCertificateForm } from './form-context'
 import { FormProgress, StepIndicators } from './form-progress'
-import { createClient } from '@/lib/supabase/client'
+import { saveCertificate } from '@/lib/certificate-actions'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { toast } from 'sonner'
 
 export function Step7Issuer() {
   const router = useRouter()
@@ -39,63 +40,19 @@ export function Step7Issuer() {
     setSaving(true)
     setError(null)
 
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+    const result = await saveCertificate(
+      { ...formData, ...data },
+      { status: 'draft', isEditMode, certificateId }
+    )
 
-      if (!user) throw new Error('Not authenticated')
+    setSaving(false)
 
-      // Combine all form data and transform empty strings to null
-      const completeData = Object.fromEntries(
-        Object.entries({ ...formData, ...data }).map(([key, value]) => [
-          key,
-          value === '' ? null : value
-        ])
-      )
-
-      if (isEditMode && certificateId) {
-        // Update existing certificate
-        const { error: updateError } = await supabase
-          .from('death_certificates')
-          .update({
-            ...completeData,
-            status: 'draft',
-          })
-          .eq('id', certificateId)
-
-        if (updateError) throw updateError
-      } else {
-        // Create new certificate
-        // Get user's region data
-        const { data: userData } = await supabase
-          .from('users')
-          .select('region_id, district_id, facility_id')
-          .eq('id', user.id)
-          .single()
-
-        // Generate serial number (simplified - in production use DB function)
-        const serial = `DRAFT-${Date.now()}`
-
-        const { error: insertError } = await supabase
-          .from('death_certificates')
-          .insert({
-            serial_number: serial,
-            status: 'draft',
-            created_by_id: user.id,
-            region_id: userData?.region_id,
-            district_id: userData?.district_id,
-            facility_id: userData?.facility_id,
-            ...completeData,
-          })
-
-        if (insertError) throw insertError
-      }
-
+    if (result.success) {
+      toast.success('Draft saved successfully')
       router.push('/dashboard/certificates')
-    } catch (err: any) {
-      setError(err.message || 'Failed to save draft')
-    } finally {
-      setSaving(false)
+    } else {
+      setError(result.error ?? 'Failed to save draft')
+      toast.error(result.error ?? 'Failed to save draft')
     }
   }
 

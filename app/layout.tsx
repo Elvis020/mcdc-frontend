@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Lato, Manrope } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const lato = Lato({
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${lato.variable} ${manrope.variable} antialiased`}>
         {children}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

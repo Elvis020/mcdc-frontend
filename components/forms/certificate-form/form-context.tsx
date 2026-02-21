@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react'
 import { CertificateFormData } from '@/lib/validations/certificate.schema'
 
 interface CertificateFormContextType {
@@ -23,49 +23,57 @@ interface CertificateFormProviderProps {
   certificateId?: string
 }
 
+// Defined outside component — created once, never recreated across renders.
+// If defined inside, a new object is created on every render, breaking
+// resetForm's memoization and causing unnecessary re-renders.
+const DEFAULT_FORM_DATA: Partial<CertificateFormData> = {
+  gender: 'male' as const,
+  manner_of_death: '' as any,
+  is_fetal_infant_death: false,
+}
+
 export function CertificateFormProvider({
   children,
   initialData,
   certificateId
 }: CertificateFormProviderProps) {
-  const defaultFormData: Partial<CertificateFormData> = {
-    gender: 'male' as const,
-    manner_of_death: '' as any,
-    is_fetal_infant_death: false,
-  }
-
   const [formData, setFormData] = useState<Partial<CertificateFormData>>(
-    initialData || defaultFormData
+    initialData || DEFAULT_FORM_DATA
   )
   const [currentStep, setCurrentStep] = useState(1)
   const [isDirty, setIsDirty] = useState(false)
   const totalSteps = 8
 
-  const updateFormData = (data: Partial<CertificateFormData>) => {
+  // Stable reference — uses functional updater so it never goes stale.
+  // Without useCallback, a new function is created on every render, causing
+  // all 8 step components (which consume this via context) to re-render.
+  const updateFormData = useCallback((data: Partial<CertificateFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
     setIsDirty(true)
-  }
+  }, [])
 
   const resetForm = useCallback(() => {
-    setFormData(defaultFormData)
+    setFormData(DEFAULT_FORM_DATA)
     setCurrentStep(1)
     setIsDirty(false)
   }, [])
 
+  // Memoize the context value object so consumers only re-render when
+  // the specific slice of state they use actually changes.
+  const value = useMemo(() => ({
+    formData,
+    updateFormData,
+    currentStep,
+    setCurrentStep,
+    totalSteps,
+    certificateId,
+    isEditMode: !!certificateId,
+    resetForm,
+    isDirty,
+  }), [formData, updateFormData, currentStep, certificateId, resetForm, isDirty])
+
   return (
-    <CertificateFormContext.Provider
-      value={{
-        formData,
-        updateFormData,
-        currentStep,
-        setCurrentStep,
-        totalSteps,
-        certificateId,
-        isEditMode: !!certificateId,
-        resetForm,
-        isDirty,
-      }}
-    >
+    <CertificateFormContext.Provider value={value}>
       {children}
     </CertificateFormContext.Provider>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { CertificateFormProvider, useCertificateForm } from './form-context'
 import { CertificateFormData } from '@/lib/validations/certificate.schema'
 import { FormProgress } from './form-progress'
@@ -20,12 +20,16 @@ function FormContent() {
   const [showDialog, setShowDialog] = useState(false)
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
 
+  // Stable callback reference prevents useNavigationGuard's effect from
+  // re-running (and re-attaching the document click listener) on every render.
+  const onNavigationAttempt = useCallback((targetUrl: string) => {
+    setPendingNavigation(targetUrl)
+    setShowDialog(true)
+  }, [])
+
   const { allowNavigation, router } = useNavigationGuard({
     shouldBlock: isDirty,
-    onNavigationAttempt: (targetUrl) => {
-      setPendingNavigation(targetUrl)
-      setShowDialog(true)
-    },
+    onNavigationAttempt,
   })
 
   useEffect(() => {

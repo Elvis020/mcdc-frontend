@@ -105,7 +105,11 @@ export default async function CertificatesPage() {
         {/* Certificates List */}
         {certificates && certificates.length > 0 ? (
           <div className="divide-y divide-slate-200">
-            {certificates.map((cert) => (
+            {certificates.map((cert) => {
+              // Compute once — getCertificateStatus does Date math and was
+              // previously called 3-4 times per row in the JSX below.
+              const statusText = getCertificateStatus(cert)
+              return (
               <NavLink
                 key={cert.id}
                 href={`/dashboard/certificates/${cert.id}`}
@@ -147,15 +151,15 @@ export default async function CertificatesPage() {
                     })}
                   </p>
 
-                  {getCertificateStatus(cert) && (
+                  {statusText && (
                     <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                      {cert.status === 'submitted' && getCertificateStatus(cert)?.includes('Editable') && (
+                      {cert.status === 'submitted' && statusText.includes('Editable') && (
                         <span className="text-amber-600">⏰</span>
                       )}
-                      {cert.status === 'submitted' && getCertificateStatus(cert)?.includes('closed') && (
+                      {cert.status === 'submitted' && statusText.includes('closed') && (
                         <span className="text-slate-400">🔒</span>
                       )}
-                      {getCertificateStatus(cert)}
+                      {statusText}
                     </p>
                   )}
                 </div>
@@ -163,7 +167,8 @@ export default async function CertificatesPage() {
                 {/* Chevron */}
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-slate-600 flex-shrink-0" />
               </NavLink>
-            ))}
+            )
+            })}
           </div>
         ) : (
           // Empty State

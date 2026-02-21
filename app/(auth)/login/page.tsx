@@ -71,7 +71,9 @@ export default function LoginPage() {
     setProgressMessage('Connecting...');
 
     try {
-      const supabase = createClient();
+      // If user unchecked "Keep me signed in", use sessionStorage so the
+      // Supabase session token is cleared when the tab closes.
+      const supabase = createClient({ persistSession: keepSignedIn });
 
       // Milestone 2: Authenticating
       setProgress(30);
@@ -89,30 +91,23 @@ export default function LoginPage() {
       setProgressMessage('Verified!');
       setRedirecting(true);
 
-      // Log sign-in to user_sign_ins table
+      // Fire-and-forget audit writes — do NOT await these.
+      // They must not block navigation or trigger setState after unmount.
       if (data.user) {
-        // Milestone 4: Logging activity
-        setProgress(70);
-        setProgressMessage('Logging sign-in...');
-
-        await supabase.from("user_sign_ins").insert({
-          user_id: data.user.id,
-          ip_address: null,
-          user_agent: navigator.userAgent,
-        });
-
-        // Update last_sign_in_at
-        await supabase
-          .from("users")
-          .update({ last_sign_in_at: new Date().toISOString() })
-          .eq("id", data.user.id);
+        Promise.allSettled([
+          supabase.from("user_sign_ins").insert({
+            user_id: data.user.id,
+            ip_address: null,
+            user_agent: navigator.userAgent,
+          }),
+          supabase
+            .from("users")
+            .update({ last_sign_in_at: new Date().toISOString() })
+            .eq("id", data.user.id),
+        ])
       }
 
-      // Milestone 5: Navigating
-      setProgress(85);
-      setProgressMessage('Preparing dashboard...');
-
-      // Milestone 6: Complete
+      // Milestone 4: Complete
       setProgress(100);
       setProgressMessage('Redirecting...');
 

@@ -19,6 +19,7 @@ export function Step6FetalInfant() {
     register,
     handleSubmit,
     reset,
+    getValues,
     watch,
   } = useForm<FetalInfant>({
     resolver: zodResolver(fetalInfantSchema),
@@ -229,7 +230,7 @@ export function Step6FetalInfant() {
             </button>
             <button
               type="button"
-              onClick={saveDraft}
+              onClick={() => saveDraft(getValues())}
               disabled={saving}
               className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >

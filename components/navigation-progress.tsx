@@ -6,6 +6,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
   ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
@@ -28,6 +29,13 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const [isNavigating, setIsNavigating] = useState(false);
   const [progress, setProgress] = useState(0);
   const pathname = usePathname();
+  // Store timer handles so the effect cleanup can cancel both timers.
+  // Previously, fadeTimer was created inside setTimeout and its clearTimeout
+  // was never reachable by React's cleanup — it was a no-op closure.
+  // This caused orphaned timers when startNavigation was called a second time
+  // while the fade was in progress, creating competing timer chains.
+  const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const startNavigation = useCallback(() => {
     setIsNavigating(true);
@@ -37,16 +45,22 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   // Complete when pathname changes
   useEffect(() => {
     if (isNavigating) {
+      // Clear any leftover timers before starting new ones
+      if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+
       // Delay before completing to ensure page renders
-      const completeTimer = setTimeout(() => {
+      completeTimerRef.current = setTimeout(() => {
         setProgress(100);
-        const fadeTimer = setTimeout(() => {
+        fadeTimerRef.current = setTimeout(() => {
           setIsNavigating(false);
           setProgress(0);
         }, 400);
-        return () => clearTimeout(fadeTimer);
       }, 150);
-      return () => clearTimeout(completeTimer);
+      return () => {
+        if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+        if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+      };
     }
   }, [pathname, isNavigating]);
 

@@ -11,6 +11,9 @@ interface UseNavigationGuardProps {
 export function useNavigationGuard({ shouldBlock, onNavigationAttempt }: UseNavigationGuardProps) {
   const router = useRouter()
   const isNavigatingRef = useRef(false)
+  // Store the reset-timer ID so it can be cancelled if the component unmounts
+  // before the 100ms window elapses (avoids writing to a ref on an unmounted component).
+  const allowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!shouldBlock) return
@@ -42,10 +45,17 @@ export function useNavigationGuard({ shouldBlock, onNavigationAttempt }: UseNavi
     }
   }, [shouldBlock, onNavigationAttempt])
 
+  // Clear pending allow-timer on unmount
+  useEffect(() => {
+    return () => {
+      if (allowTimerRef.current !== null) clearTimeout(allowTimerRef.current)
+    }
+  }, [])
+
   const allowNavigation = useCallback(() => {
     isNavigatingRef.current = true
     // Reset after a short delay to allow the navigation to complete
-    setTimeout(() => {
+    allowTimerRef.current = setTimeout(() => {
       isNavigatingRef.current = false
     }, 100)
   }, [])

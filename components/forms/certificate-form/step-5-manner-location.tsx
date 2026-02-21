@@ -19,6 +19,7 @@ export function Step5MannerLocation() {
     register,
     handleSubmit,
     reset,
+    getValues,
     watch,
     formState: { errors },
   } = useForm<MannerLocation>({
@@ -157,7 +158,7 @@ export function Step5MannerLocation() {
             </button>
             <button
               type="button"
-              onClick={saveDraft}
+              onClick={() => saveDraft(getValues())}
               disabled={saving}
               className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
