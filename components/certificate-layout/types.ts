@@ -24,24 +24,32 @@ export interface CertificateDisplayData {
   cause_a_description?: string | null
   cause_a_icd_code?: string | null
   cause_a_interval?: string | null
+  cause_a_comment?: string | null
   cause_b_description?: string | null
   cause_b_icd_code?: string | null
   cause_b_interval?: string | null
+  cause_b_comment?: string | null
   cause_c_description?: string | null
   cause_c_icd_code?: string | null
   cause_c_interval?: string | null
+  cause_c_comment?: string | null
   cause_d_description?: string | null
   cause_d_icd_code?: string | null
   cause_d_interval?: string | null
+  cause_d_comment?: string | null
   // Contributing conditions (up to 4)
   contributing_conditions?: string | null
   contributing_conditions_icd_code?: string | null
+  contributing_conditions_comment?: string | null
   contributing_conditions_2?: string | null
   contributing_conditions_2_icd_code?: string | null
+  contributing_conditions_2_comment?: string | null
   contributing_conditions_3?: string | null
   contributing_conditions_3_icd_code?: string | null
+  contributing_conditions_3_comment?: string | null
   contributing_conditions_4?: string | null
   contributing_conditions_4_icd_code?: string | null
+  contributing_conditions_4_comment?: string | null
   // Other medical
   surgery_within_4_weeks?: string | null
   surgery_date?: string | null

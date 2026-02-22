@@ -7,32 +7,36 @@ export function CauseOfDeathSection({ data }: { data: CertificateDisplayData }) 
       desc: data.cause_a_description,
       icd: data.cause_a_icd_code,
       interval: data.cause_a_interval,
+      comment: data.cause_a_comment,
     },
     {
       label: 'b',
       desc: data.cause_b_description,
       icd: data.cause_b_icd_code,
       interval: data.cause_b_interval,
+      comment: data.cause_b_comment,
     },
     {
       label: 'c',
       desc: data.cause_c_description,
       icd: data.cause_c_icd_code,
       interval: data.cause_c_interval,
+      comment: data.cause_c_comment,
     },
     {
       label: 'd',
       desc: data.cause_d_description,
       icd: data.cause_d_icd_code,
       interval: data.cause_d_interval,
+      comment: data.cause_d_comment,
     },
   ]
 
   const conditions = [
-    { desc: data.contributing_conditions, icd: data.contributing_conditions_icd_code },
-    { desc: data.contributing_conditions_2, icd: data.contributing_conditions_2_icd_code },
-    { desc: data.contributing_conditions_3, icd: data.contributing_conditions_3_icd_code },
-    { desc: data.contributing_conditions_4, icd: data.contributing_conditions_4_icd_code },
+    { desc: data.contributing_conditions, icd: data.contributing_conditions_icd_code, comment: data.contributing_conditions_comment },
+    { desc: data.contributing_conditions_2, icd: data.contributing_conditions_2_icd_code, comment: data.contributing_conditions_2_comment },
+    { desc: data.contributing_conditions_3, icd: data.contributing_conditions_3_icd_code, comment: data.contributing_conditions_3_comment },
+    { desc: data.contributing_conditions_4, icd: data.contributing_conditions_4_icd_code, comment: data.contributing_conditions_4_comment },
   ]
 
   return (
@@ -98,6 +102,9 @@ export function CauseOfDeathSection({ data }: { data: CertificateDisplayData }) 
             {cause.icd && (
               <p className="text-[8px] text-gray-400 mt-0.5 font-mono">ICD: {cause.icd}</p>
             )}
+            {cause.comment && (
+              <p className="text-[8px] text-gray-500 italic mt-0.5">{cause.comment}</p>
+            )}
           </div>
 
           {/* Time interval */}
@@ -133,6 +140,9 @@ export function CauseOfDeathSection({ data }: { data: CertificateDisplayData }) 
           >
             <div className="px-2 py-1">
               <p className="text-[10px]">{cond.desc ?? ''}</p>
+              {cond.comment && (
+                <p className="text-[8px] text-gray-500 italic mt-0.5">{cond.comment}</p>
+              )}
             </div>
             <div className="px-1 py-1 flex items-start justify-center">
               <p className="text-[10px] font-mono text-center">{cond.icd ?? ''}</p>
